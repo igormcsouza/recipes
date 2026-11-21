@@ -13,6 +13,7 @@ SiteStack(
     domain=app.node.get_context("domain"),
     zone_name=app.node.get_context("zone_name"),
     github_repo=app.node.get_context("github_repo"),
+    alert_email=app.node.try_get_context("alert_email"),  # pass with -c alert_email=...; never commit it
     env=env,
 )
 cdk.Tags.of(app).add("project", "recipes")

@@ -55,3 +55,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Releases: see the changelog in [CHANGELO
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+## Cost alarm
+
+`cdk deploy -c alert_email=you@example.com` adds an AWS Budget that emails you as soon as CloudFront or S3 bills anything above $0.01 in a month (actual or forecast). The address is a deploy-time value on purpose: this repo is public.

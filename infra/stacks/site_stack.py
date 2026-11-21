@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import aws_cdk as cdk
+from aws_cdk import aws_budgets as budgets
 from aws_cdk import aws_certificatemanager as acm
 from aws_cdk import aws_cloudfront as cloudfront
 from aws_cdk import aws_cloudfront_origins as origins
@@ -33,6 +34,7 @@ class SiteStack(cdk.Stack):
         domain: str,
         zone_name: str,
         github_repo: str,
+        alert_email: str | None = None,
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -161,6 +163,35 @@ class SiteStack(cdk.Stack):
             )
         )
         role.add_to_policy(iam.PolicyStatement(actions=["cloudformation:DescribeStacks"], resources=[self.stack_id]))
+
+        if alert_email:
+            # Anything the site itself bills is unexpected (free tier covers it). Scoped to the services this
+            # stack uses so the pre-existing Route 53 zones do not trip it. The email is a deploy-time context
+            # value, never committed: this repo is public.
+            budgets.CfnBudget(
+                self,
+                "CostAlarm",
+                budget=budgets.CfnBudget.BudgetDataProperty(
+                    budget_type="COST",
+                    time_unit="MONTHLY",
+                    budget_limit=budgets.CfnBudget.SpendProperty(amount=0.01, unit="USD"),
+                    cost_filters={"Service": ["Amazon CloudFront", "Amazon Simple Storage Service"]},
+                ),
+                notifications_with_subscribers=[
+                    budgets.CfnBudget.NotificationWithSubscribersProperty(
+                        notification=budgets.CfnBudget.NotificationProperty(
+                            notification_type=notification,
+                            comparison_operator="GREATER_THAN",
+                            threshold=threshold,
+                            threshold_type="PERCENTAGE",
+                        ),
+                        subscribers=[
+                            budgets.CfnBudget.SubscriberProperty(subscription_type="EMAIL", address=alert_email)
+                        ],
+                    )
+                    for notification, threshold in (("ACTUAL", 100), ("FORECASTED", 100))
+                ],
+            )
 
         cdk.CfnOutput(self, "BucketName", value=bucket.bucket_name)
         cdk.CfnOutput(self, "DistributionId", value=distribution.distribution_id)

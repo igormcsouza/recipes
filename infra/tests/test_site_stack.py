@@ -4,13 +4,14 @@ from aws_cdk.assertions import Match, Template
 from stacks.site_stack import SiteStack
 
 
-def template() -> Template:
+def template(**extra) -> Template:
     stack = SiteStack(
         cdk.App(),
         "Test",
         domain="recipes.example.com",
         zone_name="example.com",
         github_repo="octo/recipes",
+        **extra,
         env=cdk.Environment(account="111111111111", region="us-east-1"),
     )
     return Template.from_stack(stack)
@@ -116,5 +117,31 @@ def test_security_headers_are_enforced():
                     )
                 }
             )
+        },
+    )
+
+
+def test_cost_alarm_only_when_an_email_is_given():
+    template().resource_count_is("AWS::Budgets::Budget", 0)
+    with_alarm = template(alert_email="me@example.com")
+    with_alarm.has_resource_properties(
+        "AWS::Budgets::Budget",
+        {
+            "Budget": Match.object_like(
+                {
+                    "BudgetLimit": {"Amount": 0.01, "Unit": "USD"},
+                    "CostFilters": {"Service": ["Amazon CloudFront", "Amazon Simple Storage Service"]},
+                }
+            ),
+            "NotificationsWithSubscribers": Match.array_with(
+                [
+                    Match.object_like(
+                        {
+                            "Notification": Match.object_like({"NotificationType": "ACTUAL"}),
+                            "Subscribers": [{"SubscriptionType": "EMAIL", "Address": "me@example.com"}],
+                        }
+                    )
+                ]
+            ),
         },
     )
