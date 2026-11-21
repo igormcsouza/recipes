@@ -21,7 +21,8 @@ function pickLang(header) {
 
 function handler(event) {
   var req = event.request;
-  var uri = req.uri;
+  // Collapse leading slashes: "//evil" must never become a protocol-relative redirect target.
+  var uri = req.uri.replace(/^\/{2,}/, "/");
 
   if (uri === "/" || uri === "/index.html") {
     var saved = req.cookies && req.cookies.lang && req.cookies.lang.value;
@@ -35,6 +36,7 @@ function handler(event) {
   }
 
   var last = uri.split("/").pop();
+  req.uri = uri;
   if (uri.charAt(uri.length - 1) === "/") req.uri = uri + "index.html";
   else if (last.indexOf(".") < 0)
     return { statusCode: 301, statusDescription: "Moved Permanently", headers: { location: { value: uri + "/" } } };

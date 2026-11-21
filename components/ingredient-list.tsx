@@ -9,7 +9,7 @@ export function IngredientList({ items }: { items: Ingredient[] }) {
   return (
     <ul>
       {items.map((ing, i) => (
-        <li key={i} className="border-b last:border-b-0">
+        <li key={ing.text} className="border-b last:border-b-0">
           <button
             type="button"
             aria-pressed={!!done[i]}

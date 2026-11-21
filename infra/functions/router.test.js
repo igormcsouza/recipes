@@ -47,3 +47,8 @@ test("files pass through, extensionless paths get a trailing slash", () => {
   assert.strictEqual(r.statusCode, 301);
   assert.strictEqual(r.headers.location.value, "/pt/receitas/fricasse-missionario/");
 });
+
+test("leading slashes never produce a protocol-relative redirect", () => {
+  assert.strictEqual(handler(ev("//evil")).headers.location.value, "/evil/");
+  assert.strictEqual(handler(ev("///evil.example/")).uri, "/evil.example/index.html");
+});

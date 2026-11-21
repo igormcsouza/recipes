@@ -74,6 +74,7 @@ export default async function RecipePage(p: P) {
 
   return (
     <article className="mx-auto w-full max-w-[1120px] px-5 pt-1 min-[720px]:px-8 min-[720px]:pt-2">
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD built from our own content, "<" escaped */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <Link
         href={indexPath(lang)}
@@ -132,11 +133,12 @@ export default async function RecipePage(p: P) {
           <h2 id="met-h" className={`${h2} mb-1 min-[720px]:mb-2`}>
             {t.method}
           </h2>
+          {/* biome-ignore lint/a11y/noRedundantRoles: keeps list semantics in Safari/VoiceOver, list styling is reset */}
           <ol role="list">
             {loc.steps.map((text, i) => {
               const img = r.stepImages[String(i + 1)];
               return (
-                <li key={i} className={`flex gap-4 border-b py-[18px] last:border-b-0 min-[720px]:gap-5 min-[720px]:py-[22px] ${img ? "items-start" : "items-center"}`}>
+                <li key={text} className={`flex gap-4 border-b py-[18px] last:border-b-0 min-[720px]:gap-5 min-[720px]:py-[22px] ${img ? "items-start" : "items-center"}`}>
                   <span
                     aria-hidden
                     className="grid size-11 shrink-0 place-items-center rounded-full bg-soft font-serif text-xl font-semibold text-primary min-[720px]:size-12 min-[720px]:text-[22px]"

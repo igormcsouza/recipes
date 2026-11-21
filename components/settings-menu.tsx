@@ -34,6 +34,7 @@ export function SettingsMenu({ lang, routes, t }: Props) {
       >
         <SlidersHorizontal aria-hidden className="size-5" />
       </button>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: backdrop click is a pointer shortcut, Escape closes a modal <dialog> natively */}
       <dialog
         ref={dialog}
         aria-labelledby="settings-title"
@@ -65,7 +66,7 @@ export function SettingsMenu({ lang, routes, t }: Props) {
                 lang={l}
                 aria-current={l === lang ? "true" : undefined}
                 onClick={() => {
-                  document.cookie = `lang=${l};path=/;max-age=31536000;samesite=lax`;
+                  document.cookie = `lang=${l};path=/;max-age=31536000;samesite=lax;secure`;
                   dialog.current!.close();
                 }}
                 className={`${seg} ${l === lang ? on : "hover:bg-card"}`}

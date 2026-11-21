@@ -96,3 +96,25 @@ def test_no_wildcard_iam_actions():
         for stmt in policy["Properties"]["PolicyDocument"]["Statement"]:
             actions = stmt["Action"] if isinstance(stmt["Action"], list) else [stmt["Action"]]
             assert all("*" not in a for a in actions)
+
+
+def test_security_headers_are_enforced():
+    template().has_resource_properties(
+        "AWS::CloudFront::ResponseHeadersPolicy",
+        {
+            "ResponseHeadersPolicyConfig": Match.object_like(
+                {
+                    "SecurityHeadersConfig": Match.object_like(
+                        {
+                            "ContentSecurityPolicy": Match.object_like(
+                                {"ContentSecurityPolicy": Match.string_like_regexp("frame-ancestors 'none'")}
+                            ),
+                            "StrictTransportSecurity": Match.object_like({"AccessControlMaxAgeSec": 31536000}),
+                            "FrameOptions": {"FrameOption": "DENY", "Override": True},
+                            "ContentTypeOptions": {"Override": True},
+                        }
+                    )
+                }
+            )
+        },
+    )

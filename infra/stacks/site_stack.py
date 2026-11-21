@@ -12,6 +12,14 @@ from constructs import Construct
 
 ROUTER = Path(__file__).resolve().parent.parent / "functions" / "router.js"
 GITHUB_OIDC_HOST = "token.actions.githubusercontent.com"
+# Static export ships inline bootstrap scripts (theme, RSC payload), so scripts need 'unsafe-inline'.
+# Everything else is locked to this origin; GoatCounter is the only third party, and only if enabled.
+CSP = (
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at; "
+    "style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; "
+    "connect-src 'self' https://*.goatcounter.com; object-src 'none'; base-uri 'self'; "
+    "form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+)
 
 
 class SiteStack(cdk.Stack):
@@ -53,6 +61,38 @@ class SiteStack(cdk.Stack):
             runtime=cloudfront.FunctionRuntime.JS_2_0,
         )
 
+        headers = cloudfront.ResponseHeadersPolicy(
+            self,
+            "Headers",
+            security_headers_behavior=cloudfront.ResponseSecurityHeadersBehavior(
+                content_security_policy=cloudfront.ResponseHeadersContentSecurityPolicy(
+                    content_security_policy=CSP, override=True
+                ),
+                strict_transport_security=cloudfront.ResponseHeadersStrictTransportSecurity(
+                    access_control_max_age=cdk.Duration.days(365), include_subdomains=False, override=True
+                ),
+                content_type_options=cloudfront.ResponseHeadersContentTypeOptions(override=True),
+                frame_options=cloudfront.ResponseHeadersFrameOptions(
+                    frame_option=cloudfront.HeadersFrameOption.DENY, override=True
+                ),
+                referrer_policy=cloudfront.ResponseHeadersReferrerPolicy(
+                    referrer_policy=cloudfront.HeadersReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN, override=True
+                ),
+            ),
+            custom_headers_behavior=cloudfront.ResponseCustomHeadersBehavior(
+                custom_headers=[
+                    cloudfront.ResponseCustomHeader(
+                        header="Permissions-Policy",
+                        value="camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+                        override=True,
+                    ),
+                    cloudfront.ResponseCustomHeader(
+                        header="Cross-Origin-Opener-Policy", value="same-origin", override=True
+                    ),
+                ]
+            ),
+        )
+
         not_found = cloudfront.ErrorResponse
         distribution = cloudfront.Distribution(
             self,
@@ -63,7 +103,7 @@ class SiteStack(cdk.Stack):
                 origin=origins.S3BucketOrigin.with_origin_access_control(bucket),
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
-                response_headers_policy=cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+                response_headers_policy=headers,
                 compress=True,
                 function_associations=[
                     cloudfront.FunctionAssociation(
