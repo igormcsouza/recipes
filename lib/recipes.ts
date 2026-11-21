@@ -25,7 +25,6 @@ export type Recipe = {
   servings: number;
   hero: string | null;
   og: string | null;
-  ingredientIcons: string[];
   stepImages: Record<string, string>;
   lang: Record<Lang, Localized>;
 };
@@ -34,12 +33,12 @@ function need(ok: unknown, where: string, what: string): asserts ok {
   if (!ok) throw new Error(`Recipe content error in ${where}: ${what}`);
 }
 
-function readLocalized(id: string, lang: Lang, file: string, iconCount: number): Localized {
+function readLocalized(id: string, lang: Lang, file: string): Localized {
   const where = `${id}/${lang}.mdx`;
   need(fs.existsSync(file), where, "file is missing (every recipe must exist in every language)");
   const { data, content } = matter(fs.readFileSync(file, "utf8"));
   for (const key of ["slug", "title", "description", "lead"]) need(typeof data[key] === "string" && data[key], where, `missing "${key}"`);
-  need(Array.isArray(data.ingredients) && data.ingredients.length === iconCount, where, `needs exactly ${iconCount} ingredients (one per icon in recipe.json)`);
+  need(Array.isArray(data.ingredients) && data.ingredients.length > 0, where, "needs at least one ingredient");
   need(Array.isArray(data.steps) && data.steps.length > 0, where, "needs at least one step");
   return {
     slug: data.slug,
@@ -60,12 +59,12 @@ export function loadRecipes(dir: string = CONTENT_DIR): Recipe[] {
     .map((d) => {
       const meta = JSON.parse(fs.readFileSync(path.join(dir, d.name, "recipe.json"), "utf8"));
       need(meta.id === d.name, d.name, `recipe.json id "${meta.id}" must equal the folder name`);
-      need(Array.isArray(meta.ingredientIcons), d.name, "recipe.json needs ingredientIcons");
       const lang = Object.fromEntries(
-        LANGS.map((l) => [l, readLocalized(d.name, l, path.join(dir, d.name, `${l}.mdx`), meta.ingredientIcons.length)]),
+        LANGS.map((l) => [l, readLocalized(d.name, l, path.join(dir, d.name, `${l}.mdx`))]),
       ) as Record<Lang, Localized>;
       const stepCounts = new Set(LANGS.map((l) => lang[l].steps.length));
       need(stepCounts.size === 1, d.name, "all languages must have the same number of steps");
+      need(new Set(LANGS.map((l) => lang[l].ingredients.length)).size === 1, d.name, "all languages must have the same number of ingredients");
       return { hero: null, og: null, stepImages: {}, ...meta, lang } as Recipe;
     })
     .sort((a, b) => b.date.localeCompare(a.date));

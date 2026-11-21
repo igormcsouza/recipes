@@ -1,4 +1,5 @@
 @import "./house-style.css";
+@import "./palette.css";
 
 @page { margin: 14mm; }
 @media print {

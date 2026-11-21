@@ -41,6 +41,11 @@ describe("formatMinutes and plurals", () => {
     expect([dict.en.people(1), dict.en.people(6)]).toEqual(["1 person", "6 people"]);
     expect([dict.fr.people(1), dict.fr.people(6)]).toEqual(["1 personne", "6 personnes"]);
   });
+  it("pluralises recipe counts in every language", () => {
+    expect([dict.pt.recipeCount(1), dict.pt.recipeCount(2)]).toEqual(["1 receita", "2 receitas"]);
+    expect([dict.en.recipeCount(1), dict.en.recipeCount(2)]).toEqual(["1 recipe", "2 recipes"]);
+    expect([dict.fr.recipeCount(1), dict.fr.recipeCount(2)]).toEqual(["1 recette", "2 recettes"]);
+  });
 });
 
 describe("switchPath", () => {
@@ -85,7 +90,7 @@ describe("share helpers", () => {
 describe("loadRecipes validation", () => {
   const fm = (extra = "") =>
     `---\nslug: s\ntitle: T\ndescription: D\nlead: L\ningredients:\n  - text: a\nsteps:\n  - one\n${extra}---\n`;
-  const make = (mutate: (dir: string) => void, meta: object = { id: "r", date: "2026-01-01", minutes: 10, difficulty: "easy", servings: 1, ingredientIcons: ["utensils"] }) => {
+  const make = (mutate: (dir: string) => void, meta: object = { id: "r", date: "2026-01-01", minutes: 10, difficulty: "easy", servings: 1 }) => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "recipes-"));
     const dir = path.join(root, "r");
     fs.mkdirSync(dir);
@@ -106,7 +111,7 @@ describe("loadRecipes validation", () => {
     const root = make(() => {});
     const other = path.join(root, "q");
     fs.cpSync(path.join(root, "r"), other, { recursive: true });
-    fs.writeFileSync(path.join(other, "recipe.json"), JSON.stringify({ id: "q", date: "2027-01-01", minutes: 1, difficulty: "easy", servings: 1, ingredientIcons: ["utensils"] }));
+    fs.writeFileSync(path.join(other, "recipe.json"), JSON.stringify({ id: "q", date: "2027-01-01", minutes: 1, difficulty: "easy", servings: 1 }));
     for (const l of ["pt", "en", "fr"]) fs.writeFileSync(path.join(other, `${l}.mdx`), fm().replace("slug: s", "slug: q"));
     expect(loadRecipes(root).map((r) => r.id)).toEqual(["q", "r"]);
   });
@@ -118,20 +123,21 @@ describe("loadRecipes validation", () => {
   it("fails on a missing language", () => expect(() => loadRecipes(make((d) => fs.rmSync(path.join(d, "fr.mdx"))))).toThrow(/fr.mdx.*missing/));
   it("fails on a missing field", () =>
     expect(() => loadRecipes(make((d) => fs.writeFileSync(path.join(d, "pt.mdx"), fm().replace("title: T\n", ""))))).toThrow(/missing "title"/));
-  it("fails when ingredient counts disagree with the icons", () =>
-    expect(() => loadRecipes(make((d) => fs.writeFileSync(path.join(d, "pt.mdx"), fm().replace("  - text: a", "  - text: a\n  - text: b"))))).toThrow(/exactly 1 ingredients/));
+  it("fails when ingredient counts differ between languages", () =>
+    expect(() => loadRecipes(make((d) => fs.writeFileSync(path.join(d, "pt.mdx"), fm().replace("  - text: a", "  - text: a\n  - text: b"))))).toThrow(/same number of ingredients/));
+  it("fails on no ingredients", () =>
+    expect(() => loadRecipes(make((d) => fs.writeFileSync(path.join(d, "pt.mdx"), fm().replace("ingredients:\n  - text: a\n", "ingredients: []\n"))))).toThrow(/at least one ingredient/));
   it("fails on no steps", () =>
     expect(() => loadRecipes(make((d) => fs.writeFileSync(path.join(d, "pt.mdx"), fm().replace("  - one\n", ""))))).toThrow(/at least one step/));
   it("fails when step counts differ", () =>
     expect(() => loadRecipes(make((d) => fs.writeFileSync(path.join(d, "pt.mdx"), fm().replace("  - one\n", "  - one\n  - two\n"))))).toThrow(/same number of steps/));
   it("fails on an id that is not the folder name", () =>
-    expect(() => loadRecipes(make(() => {}, { id: "zzz", ingredientIcons: [] }))).toThrow(/must equal the folder name/));
-  it("fails without ingredientIcons", () => expect(() => loadRecipes(make(() => {}, { id: "r" }))).toThrow(/ingredientIcons/));
+    expect(() => loadRecipes(make(() => {}, { id: "zzz" }))).toThrow(/must equal the folder name/));
   it("fails on duplicate slugs", () => {
     const root = make(() => {});
     const other = path.join(root, "q");
     fs.cpSync(path.join(root, "r"), other, { recursive: true });
-    fs.writeFileSync(path.join(other, "recipe.json"), JSON.stringify({ id: "q", date: "2025-01-01", minutes: 1, difficulty: "easy", servings: 1, ingredientIcons: ["utensils"] }));
+    fs.writeFileSync(path.join(other, "recipe.json"), JSON.stringify({ id: "q", date: "2025-01-01", minutes: 1, difficulty: "easy", servings: 1 }));
     expect(() => loadRecipes(root)).toThrow(/duplicate slugs/);
   });
 });

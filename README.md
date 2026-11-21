@@ -31,7 +31,7 @@ docker compose up --build --wait   # http://localhost:28860
 
 ### Add a recipe
 
-Create `content/recipes/<id>/` with `recipe.json` (time, servings, icons per ingredient), and `pt.mdx`, `en.mdx`, `fr.mdx`. Every language is required: the build fails if one is missing or the ingredient and step counts disagree. Put photos in `public/recipes/<id>/` and name them in `recipe.json` (`hero`, `og`, `stepImages`). Copy `content/recipes/fricasse-missionario/` as a template.
+Create `content/recipes/<id>/` with `recipe.json` (time, servings, difficulty), and `pt.mdx`, `en.mdx`, `fr.mdx`. Every language is required: the build fails if one is missing or the ingredient and step counts disagree. Put photos in `public/recipes/<id>/` and name them in `recipe.json` (`hero`, `og`, `stepImages`). Copy `content/recipes/fricasse-missionario/` as a template.
 
 ## How it works
 

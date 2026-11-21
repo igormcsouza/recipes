@@ -1,15 +1,11 @@
 "use client";
 import { Printer } from "lucide-react";
+import { iconBtn } from "./ui";
 
 export function PrintButton({ label }: { label: string }) {
   return (
-    <button
-      type="button"
-      onClick={() => window.print()}
-      className="inline-flex h-11 items-center gap-2 rounded-lg border border-input px-3 text-sm text-primary transition hover:bg-accent active:scale-[0.98]"
-    >
+    <button type="button" onClick={() => window.print()} aria-label={label} title={label} className={iconBtn}>
       <Printer aria-hidden className="size-5" />
-      {label}
     </button>
   );
 }

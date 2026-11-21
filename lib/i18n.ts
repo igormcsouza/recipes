@@ -26,6 +26,7 @@ export type Dict = {
   home: string;
   skip: string;
   settings: string;
+  close: string;
   language: string;
   theme: string;
   system: string;
@@ -47,7 +48,10 @@ export type Dict = {
   copied: string;
   copyLink: string;
   print: string;
-  onThisRecipe: string;
+  cooked: string;
+  latest: string;
+  cook: string;
+  recipeCount: (n: number) => string;
   allRecipes: string;
   photoSoon: string;
   footer: string;
@@ -63,6 +67,7 @@ export const dict: Record<Lang, Dict> = {
     home: "Início",
     skip: "Ir para o conteúdo",
     settings: "Ajustes",
+    close: "Fechar",
     language: "Idioma",
     theme: "Tema",
     system: "Sistema",
@@ -84,7 +89,10 @@ export const dict: Record<Lang, Dict> = {
     copied: "Copiado",
     copyLink: "Copiar link",
     print: "Imprimir",
-    onThisRecipe: "Nesta receita",
+    cooked: "Feito e testado em casa",
+    latest: "Receita mais recente",
+    cook: "Fazer esta receita",
+    recipeCount: (n) => `${n} ${n === 1 ? "receita" : "receitas"}`,
     allRecipes: "Todas as receitas",
     photoSoon: "Foto em breve",
     footer: "Receitas feitas e testadas em casa.",
@@ -98,6 +106,7 @@ export const dict: Record<Lang, Dict> = {
     home: "Home",
     skip: "Skip to content",
     settings: "Settings",
+    close: "Close",
     language: "Language",
     theme: "Theme",
     system: "System",
@@ -119,7 +128,10 @@ export const dict: Record<Lang, Dict> = {
     copied: "Copied",
     copyLink: "Copy link",
     print: "Print",
-    onThisRecipe: "In this recipe",
+    cooked: "Cooked and tested at home",
+    latest: "Latest recipe",
+    cook: "Cook this recipe",
+    recipeCount: (n) => `${n} ${n === 1 ? "recipe" : "recipes"}`,
     allRecipes: "All recipes",
     photoSoon: "Photo coming soon",
     footer: "Recipes cooked and tested at home.",
@@ -133,6 +145,7 @@ export const dict: Record<Lang, Dict> = {
     home: "Accueil",
     skip: "Aller au contenu",
     settings: "Réglages",
+    close: "Fermer",
     language: "Langue",
     theme: "Thème",
     system: "Système",
@@ -154,7 +167,10 @@ export const dict: Record<Lang, Dict> = {
     copied: "Copié",
     copyLink: "Copier le lien",
     print: "Imprimer",
-    onThisRecipe: "Dans cette recette",
+    cooked: "Cuisiné et testé à la maison",
+    latest: "Dernière recette",
+    cook: "Cuisiner cette recette",
+    recipeCount: (n) => `${n} ${n === 1 ? "recette" : "recettes"}`,
     allRecipes: "Toutes les recettes",
     photoSoon: "Photo bientôt",
     footer: "Recettes cuisinées et testées à la maison.",

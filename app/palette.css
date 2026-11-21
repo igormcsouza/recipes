@@ -1,0 +1,87 @@
+/* Redesign palette: maps the cream and forest-green design onto the house-style semantic tokens.
+   Loaded after house-style.css (generated, never edited). Components still use tokens only. */
+:root {
+  --background: 40 65% 95%;
+  --foreground: 111 18% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 111 18% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 111 18% 14%;
+  --secondary: 40 50% 91%;
+  --secondary-foreground: 111 18% 14%;
+  --muted: 40 50% 91%;
+  --accent: 40 50% 91%;
+  --accent-foreground: 111 18% 14%;
+  --muted-foreground: 105 8% 38%;
+  --border: 41 39% 84%;
+  --input: 41 39% 84%;
+  --primary: 142 55% 27%;
+  --ring: 142 55% 27%;
+  --primary-foreground: 0 0% 100%;
+  --soft: 95 37% 87%;
+  --tile: 43 84% 80%;
+  --tile-2: 43 85% 65%;
+  --tile-foreground: 44 100% 18%;
+  --shadow-float: 0 1px 2px hsl(112 16% 14% / .06), 0 16px 40px hsl(112 16% 14% / .08); /* house-style: allow shadow tint from the redesign */
+  color-scheme: light;
+}
+.dark {
+  --background: 103 19% 7%;
+  --foreground: 43 45% 92%;
+  --card: 104 19% 11%;
+  --card-foreground: 43 45% 92%;
+  --popover: 104 19% 11%;
+  --popover-foreground: 43 45% 92%;
+  --secondary: 107 18% 15%;
+  --secondary-foreground: 43 45% 92%;
+  --muted: 107 18% 15%;
+  --accent: 107 18% 15%;
+  --accent-foreground: 43 45% 92%;
+  --muted-foreground: 98 10% 67%;
+  --border: 108 15% 19%;
+  --input: 108 15% 19%;
+  --primary: 116 44% 68%;
+  --ring: 116 44% 68%;
+  --primary-foreground: 124 36% 9%;
+  --soft: 114 23% 16%;
+  --tile: 99 24% 16%;
+  --tile-2: 101 23% 22%;
+  --tile-foreground: 116 44% 68%;
+  --shadow-float: 0 1px 2px hsl(0 0% 0% / .4), 0 16px 40px hsl(0 0% 0% / .35); /* house-style: allow shadow tint from the redesign */
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+  --background: 103 19% 7%;
+  --foreground: 43 45% 92%;
+  --card: 104 19% 11%;
+  --card-foreground: 43 45% 92%;
+  --popover: 104 19% 11%;
+  --popover-foreground: 43 45% 92%;
+  --secondary: 107 18% 15%;
+  --secondary-foreground: 43 45% 92%;
+  --muted: 107 18% 15%;
+  --accent: 107 18% 15%;
+  --accent-foreground: 43 45% 92%;
+  --muted-foreground: 98 10% 67%;
+  --border: 108 15% 19%;
+  --input: 108 15% 19%;
+  --primary: 116 44% 68%;
+  --ring: 116 44% 68%;
+  --primary-foreground: 124 36% 9%;
+  --soft: 114 23% 16%;
+  --tile: 99 24% 16%;
+  --tile-2: 101 23% 22%;
+  --tile-foreground: 116 44% 68%;
+  --shadow-float: 0 1px 2px hsl(0 0% 0% / .4), 0 16px 40px hsl(0 0% 0% / .35); /* house-style: allow shadow tint from the redesign */
+  color-scheme: dark;
+  }
+}
+@theme inline {
+  --color-soft: hsl(var(--soft));
+  --color-tile: hsl(var(--tile));
+  --color-tile-2: hsl(var(--tile-2));
+  --color-tile-foreground: hsl(var(--tile-foreground));
+  --shadow-float: var(--shadow-float); /* house-style: allow shadow tint from the redesign */
+  --font-serif: var(--font-fraunces), Georgia, serif;
+}

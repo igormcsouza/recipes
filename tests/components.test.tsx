@@ -15,14 +15,13 @@ vi.mock("next/link", () => ({
 }));
 
 import { CopyButton } from "@/components/copy-button";
-import { IngredientIcon } from "@/components/ingredient-icon";
+import { IngredientList } from "@/components/ingredient-list";
 import { PrintButton } from "@/components/print-button";
 import { RootRedirect } from "@/components/root-redirect";
 import { SettingsMenu } from "@/components/settings-menu";
 import { ShareBar } from "@/components/share-bar";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { Toc } from "@/components/toc";
 import { routeTable } from "@/lib/recipes";
 
 afterEach(() => vi.restoreAllMocks());
@@ -40,9 +39,13 @@ describe("CopyButton", () => {
     await waitFor(() => expect(screen.getByRole("status")).toBeEmptyDOMElement());
     vi.useRealTimers();
   });
-  it("icon-only keeps an accessible name and stays quiet when clipboard fails", async () => {
+  it("shows the link icon variant", () => {
+    const { container } = render(<CopyButton text="x" label="Copy link" copiedLabel="Copied" link />);
+    expect(container.querySelector("svg")).toBeInTheDocument();
+  });
+  it("keeps an accessible name and stays quiet when clipboard fails", async () => {
     Object.assign(navigator, { clipboard: { writeText: vi.fn().mockRejectedValue(new Error("no")) } });
-    render(<CopyButton text="x" label="Copy list" copiedLabel="Copied" iconOnly />);
+    render(<CopyButton text="x" label="Copy list" copiedLabel="Copied" />);
     fireEvent.click(screen.getByRole("button", { name: "Copy list" }));
     await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalled());
     expect(screen.getByRole("status")).toBeEmptyDOMElement();
@@ -60,33 +63,38 @@ describe("PrintButton", () => {
   });
 });
 
-describe("IngredientIcon", () => {
-  it("renders known and unknown icons", () => {
-    const { container } = render(
-      <>
-        <IngredientIcon name="drumstick" />
-        <IngredientIcon name="nope" />
-      </>,
-    );
-    expect(container.querySelectorAll("svg")).toHaveLength(2);
+describe("IngredientList", () => {
+  it("ticks and unticks an ingredient", () => {
+    render(<IngredientList items={[{ text: "Chicken", note: "shredded" }, { text: "Corn" }]} />);
+    const chicken = screen.getByRole("button", { name: /Chicken/ });
+    expect(chicken).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByText("shredded")).toBeInTheDocument();
+    fireEvent.click(chicken);
+    expect(chicken).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /Corn/ })).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(chicken);
+    expect(chicken).toHaveAttribute("aria-pressed", "false");
   });
 });
 
 describe("SettingsMenu", () => {
-  const t = dict.pt;
-  const props = { lang: "pt" as const, routes: routeTable(), t };
+  const props = { lang: "pt" as const, routes: routeTable(), t: dict.pt };
+  const open = () => fireEvent.click(screen.getByRole("button", { name: "Ajustes" }));
   beforeEach(() => {
     theme.setTheme.mockClear();
     theme.theme = "system";
     pathname = "/pt/receitas/fricasse-missionario/";
   });
 
-  it("opens, links to the same page in other languages, sets cookie", () => {
+  it("is a modal dialog, hidden until the gear is pressed", () => {
     render(<SettingsMenu {...props} />);
-    const gear = screen.getByRole("button", { name: "Ajustes" });
-    expect(gear).toHaveAttribute("aria-expanded", "false");
-    fireEvent.click(gear);
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    open();
+    expect(screen.getByRole("dialog", { name: "Ajustes" })).toBeInTheDocument();
+  });
+  it("links to the same page in other languages and sets the cookie", () => {
+    render(<SettingsMenu {...props} />);
+    open();
     const en = screen.getByRole("link", { name: "EN" });
     expect(en).toHaveAttribute("href", "/en/recipes/missionary-fricassee/");
     expect(screen.getByRole("link", { name: "PT" })).toHaveAttribute("aria-current", "true");
@@ -96,29 +104,20 @@ describe("SettingsMenu", () => {
   });
   it("changes theme and shows the active one", () => {
     render(<SettingsMenu {...props} />);
-    fireEvent.click(screen.getByRole("button", { name: "Ajustes" }));
+    open();
     expect(screen.getByRole("button", { name: "Sistema" })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "Escuro" }));
     expect(theme.setTheme).toHaveBeenCalledWith("dark");
   });
-  it("closes on Escape and on outside click, ignores other keys and inside clicks", () => {
+  it("closes with the X button and on a backdrop click, but not on clicks inside", () => {
     render(<SettingsMenu {...props} />);
-    const gear = screen.getByRole("button", { name: "Ajustes" });
-    fireEvent.click(gear);
-    fireEvent.keyDown(document, { key: "a" });
-    fireEvent.mouseDown(screen.getByRole("dialog"));
+    open();
+    fireEvent.click(screen.getByText("Idioma"));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    fireEvent.keyDown(document, { key: "Escape" });
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    fireEvent.click(gear);
-    fireEvent.mouseDown(document.body);
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-  it("toggles closed with the button", () => {
-    render(<SettingsMenu {...props} />);
-    const gear = screen.getByRole("button", { name: "Ajustes" });
-    fireEvent.click(gear);
-    fireEvent.click(gear);
+    open();
+    fireEvent.click(screen.getByRole("dialog"));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
@@ -142,19 +141,17 @@ describe("RootRedirect", () => {
 });
 
 describe("server-rendered pieces", () => {
-  it("renders header, footer, toc and share bar in French", () => {
+  it("renders header, footer and share bar in French", () => {
     pathname = "/fr/";
     render(
       <>
         <SiteHeader lang="fr" />
         <SiteFooter lang="fr" />
-        <Toc lang="fr" />
         <ShareBar url="https://x.test/a" title="T" image="https://x.test/i.jpg" t={dict.fr} />
       </>,
     );
     expect(screen.getByRole("link", { name: /Recettes d'Igor Souza/ })).toHaveAttribute("href", "/fr/");
     expect(screen.getAllByRole("link", { name: "RSS" })[0]).toHaveAttribute("href", "/fr/rss.xml");
-    expect(screen.getByRole("link", { name: "Ingrédients" })).toHaveAttribute("href", "#ingredients");
     expect(screen.getByRole("link", { name: /WhatsApp/ })).toHaveAttribute("rel", "noopener noreferrer");
     expect(screen.getByRole("button", { name: "Copier le lien" })).toBeInTheDocument();
   });
