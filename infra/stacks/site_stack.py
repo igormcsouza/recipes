@@ -165,16 +165,22 @@ class SiteStack(cdk.Stack):
         role.add_to_policy(iam.PolicyStatement(actions=["cloudformation:DescribeStacks"], resources=[self.stack_id]))
 
         if alert_email:
-            # Anything the site itself bills is unexpected (free tier covers it). Scoped to the services this
-            # stack uses so the pre-existing Route 53 zones do not trip it. Email comes from cdk.json context.
+            # Anything this site bills is unexpected (free tier covers it). Scoped by the `project=recipes` cost
+            # tag (CDK tags every resource; the tag must be activated once in Billing, see README) so other
+            # projects in the account and the Route 53 zones never trip it. Email comes from cdk.json context.
             budgets.CfnBudget(
                 self,
                 "CostAlarm",
                 budget=budgets.CfnBudget.BudgetDataProperty(
+                    budget_name="recipes-site-unexpected-cost",
                     budget_type="COST",
                     time_unit="MONTHLY",
                     budget_limit=budgets.CfnBudget.SpendProperty(amount=0.01, unit="USD"),
-                    cost_filters={"Service": ["Amazon CloudFront", "Amazon Simple Storage Service"]},
+                    filter_expression=budgets.CfnBudget.ExpressionProperty(
+                        tags=budgets.CfnBudget.TagValuesProperty(
+                            key="project", values=["recipes"], match_options=["EQUALS"]
+                        )
+                    ),
                 ),
                 notifications_with_subscribers=[
                     budgets.CfnBudget.NotificationWithSubscribersProperty(

@@ -58,4 +58,10 @@ MIT, see [LICENSE](LICENSE).
 
 ## Cost alarm
 
-`infra/cdk.json` sets `alert_email`. The stack adds an AWS Budget that emails that address as soon as CloudFront or S3 bills anything above $0.01 in a month (actual or forecast). Override with `cdk deploy -c alert_email=...`; remove the key to skip the alarm.
+`infra/cdk.json` sets `alert_email`. The stack adds the AWS Budget `recipes-site-unexpected-cost`: it emails that address as soon as anything tagged `project=recipes` bills above $0.01 in a month (actual or forecast). Override with `cdk deploy -c alert_email=...`; remove the key to skip it.
+
+One-time setup: activate the `project` cost allocation tag in Billing (it takes up to 24 h to apply):
+
+```bash
+aws ce update-cost-allocation-tags-status --cost-allocation-tags-status TagKey=project,Status=Active
+```

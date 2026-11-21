@@ -130,7 +130,8 @@ def test_cost_alarm_only_when_an_email_is_given():
             "Budget": Match.object_like(
                 {
                     "BudgetLimit": {"Amount": 0.01, "Unit": "USD"},
-                    "CostFilters": {"Service": ["Amazon CloudFront", "Amazon Simple Storage Service"]},
+                    "BudgetName": "recipes-site-unexpected-cost",
+                    "FilterExpression": {"Tags": {"Key": "project", "Values": ["recipes"], "MatchOptions": ["EQUALS"]}},
                 }
             ),
             "NotificationsWithSubscribers": Match.array_with(
