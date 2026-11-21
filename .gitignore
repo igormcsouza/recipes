@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+coverage
+.env
+next-env.d.ts
+*.tsbuildinfo
+infra/cdk.out
+infra/.venv
+__pycache__
+.tether
+.pytest_cache
+.ruff_cache
+.coverage

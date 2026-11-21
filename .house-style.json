@@ -1,0 +1,9 @@
+{
+  "name": "Receitas do Igor Souza",
+  "accent": "green",
+  "icon": "chef-hat",
+  "stack": "nextjs",
+  "ports": {
+    "base": 28860
+  }
+}

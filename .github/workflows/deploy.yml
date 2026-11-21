@@ -1,0 +1,35 @@
+name: Deploy
+on:
+  push:
+    branches: [main]
+permissions:
+  id-token: write # GitHub OIDC -> AWS, no stored keys
+  contents: read
+concurrency: deploy
+env:
+  AWS_REGION: us-east-1
+  STACK: ReceitasSite
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:router
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_GOATCOUNTER: ${{ vars.GOATCOUNTER }}
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Upload and invalidate
+        run: |
+          out() { aws cloudformation describe-stacks --stack-name "$STACK" --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue" --output text; }
+          BUCKET=$(out BucketName); DIST=$(out DistributionId)
+          aws s3 sync out/_next "s3://$BUCKET/_next" --cache-control "public,max-age=31536000,immutable"
+          aws s3 sync out "s3://$BUCKET" --delete --exclude "_next/*" --cache-control "no-cache"
+          aws cloudfront create-invalidation --distribution-id "$DIST" --paths "/*"

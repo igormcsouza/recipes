@@ -1,0 +1,12 @@
+{
+  "id": "fricasse-missionario",
+  "date": "2026-11-20",
+  "minutes": 70,
+  "pressureMinutes": 40,
+  "difficulty": "easy",
+  "servings": 6,
+  "hero": null,
+  "og": "card.jpg",
+  "ingredientIcons": ["drumstick", "wheat", "soup", "milk", "carrot", "cheese", "utensils"],
+  "stepImages": {}
+}

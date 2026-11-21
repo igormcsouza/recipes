@@ -1,0 +1,13 @@
+[project]
+name = "receitas-infra"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["aws-cdk-lib", "constructs"]
+
+[dependency-groups]
+dev = ["pytest", "pytest-cov", "ruff"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=stacks --cov-report=term-missing --cov-fail-under=100"
+pythonpath = ["."]
+testpaths = ["tests"]

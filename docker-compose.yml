@@ -1,0 +1,13 @@
+# One command: docker compose up --build --wait   ->  http://localhost:28860
+# Host port comes from this project's fixed block (.house-style.json -> ports.base).
+name: receitas
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost:28860}
+        NEXT_PUBLIC_GOATCOUNTER: ${GOATCOUNTER:-}
+    ports: ["${WEB_PORT:-28860}:8080"]
+    restart: unless-stopped

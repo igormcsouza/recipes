@@ -1,0 +1,8 @@
+{
+  "app": "uv run python app.py",
+  "context": {
+    "domain": "recipes.igormcsouza.com.br",
+    "zone_name": "igormcsouza.com.br",
+    "github_repo": "igormcsouza/receitas"
+  }
+}
