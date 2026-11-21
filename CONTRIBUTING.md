@@ -2,7 +2,7 @@
 
 ## Setup
 ```bash
-git clone https://github.com/igormcsouza/receitas.git && cd receitas
+git clone https://github.com/igormcsouza/recipes.git && cd recipes
 npm ci && (cd infra && uv sync)
 ```
 

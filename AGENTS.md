@@ -7,7 +7,7 @@ Static Next.js 16 recipe blog (PT/EN/FR), exported to S3 + CloudFront by AWS CDK
 - `public/recipes/<id>/`: photos named in `recipe.json`. `card.jpg` is the Open Graph image.
 - `app/(root)/`: `/` fallback redirect. `app/[lang]/`: everything else (it is also the root layout, there is no `app/layout.tsx`).
 - `lib/i18n.ts`: languages, UI strings, `pickLang`, `switchPath`. `infra/functions/router.js` mirrors `pickLang` for CloudFront.
-- `infra/`: CDK stack `ReceitasSite` in us-east-1 (bucket, CloudFront, ACM, Route 53, GitHub OIDC role).
+- `infra/`: CDK stack `RecipesSite` in us-east-1 (bucket, CloudFront, ACM, Route 53, GitHub OIDC role).
 
 ## Commands
 - Dev: `npm run dev` (port 28860) or `docker compose up --build --wait`

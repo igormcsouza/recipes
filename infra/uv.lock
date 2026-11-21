@@ -318,7 +318,7 @@ wheels = [
 ]
 
 [[package]]
-name = "receitas-infra"
+name = "recipes-infra"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

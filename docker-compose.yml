@@ -1,6 +1,6 @@
 # One command: docker compose up --build --wait   ->  http://localhost:28860
 # Host port comes from this project's fixed block (.house-style.json -> ports.base).
-name: receitas
+name: recipes
 
 services:
   web:

@@ -9,11 +9,11 @@ app = cdk.App()
 env = cdk.Environment(account=os.environ.get("CDK_DEFAULT_ACCOUNT"), region="us-east-1")
 SiteStack(
     app,
-    "ReceitasSite",
+    "RecipesSite",
     domain=app.node.get_context("domain"),
     zone_name=app.node.get_context("zone_name"),
     github_repo=app.node.get_context("github_repo"),
     env=env,
 )
-cdk.Tags.of(app).add("project", "receitas")
+cdk.Tags.of(app).add("project", "recipes")
 app.synth()

@@ -4,8 +4,8 @@
 
 **A public, bilingual-plus recipe blog (PT, EN, FR) that is a fully static Next.js site on S3 and CloudFront.**
 
-[![CI](https://github.com/igormcsouza/receitas/actions/workflows/ci.yml/badge.svg)](https://github.com/igormcsouza/receitas/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/igormcsouza/receitas)](LICENSE)
+[![CI](https://github.com/igormcsouza/recipes/actions/workflows/ci.yml/badge.svg)](https://github.com/igormcsouza/recipes/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/igormcsouza/recipes)](LICENSE)
 
 Live at https://recipes.igormcsouza.com.br
 
