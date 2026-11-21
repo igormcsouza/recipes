@@ -166,8 +166,7 @@ class SiteStack(cdk.Stack):
 
         if alert_email:
             # Anything the site itself bills is unexpected (free tier covers it). Scoped to the services this
-            # stack uses so the pre-existing Route 53 zones do not trip it. The email is a deploy-time context
-            # value, never committed: this repo is public.
+            # stack uses so the pre-existing Route 53 zones do not trip it. Email comes from cdk.json context.
             budgets.CfnBudget(
                 self,
                 "CostAlarm",
